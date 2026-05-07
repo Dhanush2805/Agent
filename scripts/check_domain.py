@@ -4,8 +4,8 @@ import os
 
 ALLOWED_DOMAINS = [
 
-    "@gmail.com"
-
+    "@gmail.com",
+    "@users.noreply.github.com"
 ]
 
 ########################## FETCH COMMIT EMAILS ###########################
