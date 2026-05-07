@@ -7,7 +7,7 @@ import os
 # ==========================================
 
 ALLOWED_DOMAINS = [
-    "@usefulbi.com"
+    "@users.noreply.github.com"
 ]
 
 # ==========================================
