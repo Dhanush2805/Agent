@@ -52,7 +52,7 @@ def validate_email_domains(emails):
 
 def main():
 
-    print("🚀 Running Rule-Based Domain Agent")
+    print("Running Rule-Based Domain Agent")
     before = os.getenv("GITHUB_EVENT_BEFORE")
     after = os.getenv("GITHUB_SHA")
     emails = get_commit_emails(before, after)
@@ -64,11 +64,11 @@ def main():
         print("\n❌ Invalid Emails Detected:")
         for email in invalid_emails:
             print(f" - {email}")
-        print("\n🚫 AGENT FAILED")
+        print("\n AGENT FAILED")
         sys.exit(1)
     else:
-        print("\n✅ All emails are valid")
-        print("🎉 AGENT PASSED")
+        print("\n All emails are valid")
+        print("AGENT PASSED")
 
 if __name__ == "__main__":
     main()
