@@ -1,1 +1,1 @@
-print("Hello from GitHub Rule-Based Agent Testing")
+print("Testing from Windows Pycharm")
