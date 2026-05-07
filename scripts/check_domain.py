@@ -4,7 +4,6 @@ import os
 
 ALLOWED_DOMAINS = [
     "@usefulbi.com",
-    "@gmail.com",
     "@users.noreply.github.com"
 ]
 
