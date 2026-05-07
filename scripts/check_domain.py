@@ -24,7 +24,7 @@ def get_commit_emails():
             for email in result.stdout.split("\n")
             if email.strip()
         ]))
-
+        print('email_found========',emails)
         return emails
 
     except Exception as e:
