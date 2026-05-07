@@ -51,7 +51,7 @@ def main():
     print("Running Rule-Based Domain Agent")
     before = os.getenv("GITHUB_EVENT_BEFORE")
     after = os.getenv("GITHUB_SHA")
-    emails = get_commit_emails(before, after)
+    emails = get_commit_emails()
     print("\n📧 Emails Found:")
     for email in emails:
         print(f" - {email}")
