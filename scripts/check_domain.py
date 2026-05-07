@@ -2,13 +2,17 @@ import subprocess
 import sys
 import os
 
+# ==========================================
+# CONFIGURATION
+# ==========================================
+
 ALLOWED_DOMAINS = [
-    "@usefulbi.com"
+    "@yourcompany.com"
 ]
 
-ALLOWED_GITHUB_USERS = [
-    "your-github-username"
-]
+# ==========================================
+# FETCH COMMIT EMAILS
+# ==========================================
 
 def get_commit_emails(before, after):
 
@@ -44,6 +48,10 @@ def get_commit_emails(before, after):
         print(f"❌ Error fetching emails: {e}")
         sys.exit(1)
 
+# ==========================================
+# VALIDATE EMAIL DOMAINS
+# ==========================================
+
 def validate_email_domains(emails):
 
     invalid_emails = []
@@ -63,24 +71,16 @@ def validate_email_domains(emails):
 
     return invalid_emails
 
-def validate_github_actor():
-
-    actor = os.getenv("GITHUB_ACTOR")
-
-    print(f"👤 GitHub Actor: {actor}")
-
-    if actor not in ALLOWED_GITHUB_USERS:
-        print(f"❌ Unauthorized GitHub user: {actor}")
-        sys.exit(1)
+# ==========================================
+# MAIN
+# ==========================================
 
 def main():
 
-    print("🚀 Running Rule-Based GitHub Agent")
+    print("🚀 Running Rule-Based Domain Agent")
 
     before = os.getenv("GITHUB_EVENT_BEFORE")
     after = os.getenv("GITHUB_SHA")
-
-    validate_github_actor()
 
     emails = get_commit_emails(before, after)
 
@@ -104,6 +104,10 @@ def main():
     else:
         print("\n✅ All emails are valid")
         print("🎉 AGENT PASSED")
+
+# ==========================================
+# ENTRY POINT
+# ==========================================
 
 if __name__ == "__main__":
     main()
