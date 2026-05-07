@@ -8,28 +8,24 @@ ALLOWED_DOMAINS = [
 
 ########################## FETCH COMMIT EMAILS ###########################
 
-def get_commit_emails(before, after):
+def get_commit_emails():
     try:
         cmd = [
             "git",
             "log",
-            "--format=%ae"
+            "--pretty=format:%ae"
         ]
-        if before and before != "0000000000000000000000000000000000000000":
-            cmd.append(f"{before}..{after}")
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        emails = result.stdout.strip().split("\n")
+
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
         emails = list(set([
             email.strip()
-            for email in emails
+            for email in result.stdout.split("\n")
             if email.strip()
         ]))
+
         return emails
+
     except Exception as e:
         print(f"❌ Error fetching emails: {e}")
         sys.exit(1)
