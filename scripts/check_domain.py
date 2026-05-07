@@ -13,6 +13,7 @@ def get_commit_emails():
         cmd = [
             "git",
             "log",
+            "origin/main..HEAD",
             "--pretty=format:%ae"
         ]
 
