@@ -3,7 +3,8 @@ import sys
 import os
 
 ALLOWED_DOMAINS = [
-    "@usefulbi.com"
+    "@usefulbi.com",
+    "@users.noreply.github.com"
 ]
 
 ########################## FETCH COMMIT EMAILS ###########################
