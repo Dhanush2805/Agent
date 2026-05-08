@@ -5,5 +5,5 @@ print("added gmail only!!!")
 
 def app(x):
     print(x)
-x="asdfsdQQRERQETRTE343fgsfdga"
-a=app(x)
+token="asdfsdQQRERQETRTE343fgsfdga"
+a=app(token)
