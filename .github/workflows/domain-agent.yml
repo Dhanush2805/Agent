@@ -78,7 +78,33 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install semgrep
+      #############################################################
+      # Create Custom Semgrep Rules
+      #############################################################
 
+      - name: Create Custom Semgrep Rules
+        run: |
+
+          cat <<EOF > custom-semgrep-rules.yml
+          rules:
+
+            - id: hardcoded-password-detection
+
+              patterns:
+                - pattern: password = "$VALUE"
+
+              message: "Hardcoded password detected. Remove credentials from source code."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+          EOF
       #############################################################
       # Execute Semgrep SAST Scan
       #############################################################
