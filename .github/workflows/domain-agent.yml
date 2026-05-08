@@ -122,4 +122,6 @@ jobs:
             --config=p/secrets \
             --config=p/python \
             --config=p/owasp-top-ten \
+            --config=custom-semgrep-rules.yml \
+
             --error
