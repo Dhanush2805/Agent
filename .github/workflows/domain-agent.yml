@@ -91,9 +91,14 @@ jobs:
             - id: hardcoded-password-detection
 
               patterns:
-                - pattern: password = "$VALUE"
 
-              message: "Hardcoded password detected. Remove credentials from source code."
+                - pattern-either:
+                    - pattern: password = ...
+                    - pattern: pwd = ...
+                    - pattern: token = ...
+                    - pattern: secret = ...
+
+              message: "Hardcoded credential detected. Remove credentials from source code."
 
               severity: ERROR
 
@@ -104,6 +109,7 @@ jobs:
                 category: security
                 confidence: HIGH
                 impact: HIGH
+
           EOF
       #############################################################
       # Execute Semgrep SAST Scan
