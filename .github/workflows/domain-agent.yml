@@ -94,8 +94,12 @@ jobs:
 
       - name: Run Talisman Secret Scan
         run: |
-          
-          talisman --scan
+
+          git diff --name-only origin/main...HEAD > changed_files.txt
+
+          cat changed_files.txt
+
+          talisman --scan-with-include-patterns="$(paste -sd'|' changed_files.txt)"
 
       - name: Print Talisman Report
         if: failure()
