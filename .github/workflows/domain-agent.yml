@@ -95,7 +95,13 @@ jobs:
       - name: Run Talisman Secret Scan
         run: |
 
-          talisman --scan
+          talisman --scan || true
+
+          echo "============= TALISMAN REPORT ============="
+
+          find talisman_report -type f | xargs cat
+
+          exit 1
 
   #################################################################
   # 3. SEMGREP SAST SCAN
