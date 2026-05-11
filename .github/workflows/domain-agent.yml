@@ -12,7 +12,7 @@ permissions:
 jobs:
 
   #################################################################
-  # DOMAIN VALIDATION AGENT
+  # 1. DOMAIN VALIDATION AGENT
   #################################################################
 
   validate-domain-policy:
@@ -53,12 +53,15 @@ jobs:
           python scripts/check_domain.py
 
   #################################################################
-  # SEMGREP SAST SCAN
+  # 2. TALISMAN SECRET SCAN
   #################################################################
 
-  semgrep-security-scan:
+  talisman-secret-scan:
 
-    name: Semgrep SAST Scan
+    name: Talisman Secret Scan
+
+    needs: validate-domain-policy
+
     runs-on: ubuntu-latest
 
     steps:
@@ -69,6 +72,93 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      #############################################################
+      # Install Talisman
+      #############################################################
+
+      - name: Install Talisman
+        run: |
+
+          curl -Lo talisman https://github.com/thoughtworks/talisman/releases/latest/download/talisman_linux_amd64
+
+          chmod +x talisman
+
+          sudo mv talisman /usr/local/bin/
+
+      #############################################################
+      # Run Talisman Secret Scan
+      #############################################################
+
+      - name: Run Talisman Secret Scan
+        run: |
+
+          echo "Getting changed files..."
+
+          git diff --name-only origin/main...HEAD > changed_files.txt
+
+          mkdir talisman-temp
+
+          while read file; do
+
+            if [ -f "$file" ]; then
+
+              mkdir -p "talisman-temp/$(dirname "$file")"
+
+              cp "$file" "talisman-temp/$file"
+
+            fi
+
+          done < changed_files.txt
+
+          echo "Files copied for scanning:"
+          find talisman-temp -type f
+
+          cd talisman-temp
+
+          talisman --scan
+
+      - name: Print Talisman Report
+        if: failure()
+        run: |
+          
+          echo "============= TALISMAN REPORT ============="
+          
+          find talisman_report -type f | xargs cat
+
+  #################################################################
+  # 3. SEMGREP SAST SCAN
+  #################################################################
+
+  semgrep-security-scan:
+
+    name: Semgrep SAST Scan
+
+    needs: talisman-secret-scan
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      #############################################################
+      # Checkout Repository
+      #############################################################
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      #############################################################
+      # Setup Python
+      #############################################################
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
       #############################################################
       # Install Semgrep
@@ -76,8 +166,124 @@ jobs:
 
       - name: Install Semgrep
         run: |
+
           python -m pip install --upgrade pip
+
           pip install semgrep
+
+      #############################################################
+      # Create Custom Semgrep Rules
+      #############################################################
+
+      - name: Create Custom Semgrep Rules
+        run: |
+
+          cat <<EOF > custom-semgrep-rules.yml
+          rules:
+
+            #########################################################
+            # Dangerous eval()
+            #########################################################
+
+            - id: dangerous-eval-detection
+
+              pattern: eval(...)
+
+              message: "Use of eval() detected. Potential Remote Code Execution vulnerability."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Dangerous subprocess shell=True
+            #########################################################
+
+            - id: dangerous-subprocess-shell
+
+              pattern: subprocess.run(..., shell=True)
+
+              message: "shell=True detected in subprocess.run(). Potential command injection risk."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Dangerous os.system()
+            #########################################################
+
+            - id: dangerous-os-system
+
+              pattern: os.system(...)
+
+              message: "os.system() detected. Potential command injection vulnerability."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Unsafe YAML Load
+            #########################################################
+
+            - id: dangerous-yaml-load
+
+              pattern: yaml.load(...)
+
+              message: "yaml.load() detected without SafeLoader. Potential arbitrary code execution risk."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Weak Hash Algorithms
+            #########################################################
+
+            - id: weak-md5-usage
+
+              pattern-either:
+                - pattern: hashlib.md5(...)
+                - pattern: hashlib.sha1(...)
+
+              message: "Weak hashing algorithm detected. Use SHA-256 or stronger hashing."
+
+              severity: WARNING
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: MEDIUM
+                impact: MEDIUM
+
+          EOF
 
       #############################################################
       # Execute Semgrep SAST Scan
@@ -85,9 +291,10 @@ jobs:
 
       - name: Run Semgrep Security Scan
         run: |
+          
           semgrep scan \
             --config=p/security-audit \
-            --config=p/secrets \
             --config=p/python \
             --config=p/owasp-top-ten \
+            --config=custom-semgrep-rules.yml \
             --error
