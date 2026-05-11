@@ -97,13 +97,13 @@ jobs:
           
           talisman --scan
 
-          - name: Print Talisman Report
-            if: failure()
-            run: |
+      - name: Print Talisman Report
+        if: failure()
+        run: |
           
-              echo "============= TALISMAN REPORT ============="
+          echo "============= TALISMAN REPORT ============="
           
-              find talisman_report -type f | xargs cat
+          find talisman_report -type f | xargs cat
 
   #################################################################
   # 3. SEMGREP SAST SCAN
