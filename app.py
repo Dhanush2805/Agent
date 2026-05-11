@@ -5,5 +5,5 @@ print("added gmail only!!!")
 
 def app(x):
     print(x)
-pwd = "Admin123@"
+pwd = "a"
 a=app(pwd)
