@@ -183,6 +183,107 @@ jobs:
 
             #########################################################
             # Dangerous eval()
+            #########################################################
+
+            - id: dangerous-eval-detection
+
+              pattern: eval(...)
+
+              message: "Use of eval() detected. Potential Remote Code Execution vulnerability."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Dangerous subprocess shell=True
+            #########################################################
+
+            - id: dangerous-subprocess-shell
+
+              pattern: subprocess.run(..., shell=True)
+
+              message: "shell=True detected in subprocess.run(). Potential command injection risk."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Dangerous os.system()
+            #########################################################
+
+            - id: dangerous-os-system
+
+              pattern: os.system(...)
+
+              message: "os.system() detected. Potential command injection vulnerability."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Unsafe YAML Load
+            #########################################################
+
+            - id: dangerous-yaml-load
+
+              pattern: yaml.load(...)
+
+              message: "yaml.load() detected without SafeLoader. Potential arbitrary code execution risk."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
+
+            #########################################################
+            # Weak Hash Algorithms
+            #########################################################
+
+            - id: weak-md5-usage
+
+              pattern-either:
+                - pattern: hashlib.md5(...)
+                - pattern: hashlib.sha1(...)
+
+              message: "Weak hashing algorithm detected. Use SHA-256 or stronger hashing."
+
+              severity: WARNING
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: MEDIUM
+                impact: MEDIUM
+
+          EOF
 
       #############################################################
       # Execute Semgrep SAST Scan
@@ -190,7 +291,7 @@ jobs:
 
       - name: Run Semgrep Security Scan
         run: |
-
+          
           semgrep scan \
             --config=p/security-audit \
             --config=p/python \
