@@ -95,11 +95,30 @@ jobs:
       - name: Run Talisman Secret Scan
         run: |
 
+          echo "Getting changed files..."
+
           git diff --name-only origin/main...HEAD > changed_files.txt
 
-          cat changed_files.txt
+          mkdir talisman-temp
 
-          talisman --scan-with-include-patterns="$(paste -sd'|' changed_files.txt)"
+          while read file; do
+
+            if [ -f "$file" ]; then
+
+              mkdir -p "talisman-temp/$(dirname "$file")"
+
+              cp "$file" "talisman-temp/$file"
+
+            fi
+
+          done < changed_files.txt
+
+          echo "Files copied for scanning:"
+          find talisman-temp -type f
+
+          cd talisman-temp
+
+          talisman --scan
 
       - name: Print Talisman Report
         if: failure()
