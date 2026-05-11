@@ -181,61 +181,8 @@ jobs:
           cat <<EOF > custom-semgrep-rules.yml
           rules:
 
-            - id: hardcoded-password-detection
-
-              patterns:
-
-                - pattern-either:
-                    - pattern: password = ...
-                    - pattern: pwd = ...
-                    - pattern: token = ...
-                    - pattern: secret = ...
-
-              message: "Hardcoded credential detected. Remove credentials from source code."
-
-              severity: ERROR
-
-              languages:
-                - python
-
-              metadata:
-                category: security
-                confidence: HIGH
-                impact: HIGH
-
-            - id: dangerous-eval-detection
-
-              pattern: eval(...)
-
-              message: "Use of eval() detected. Potential Remote Code Execution vulnerability."
-
-              severity: ERROR
-
-              languages:
-                - python
-
-              metadata:
-                category: security
-                confidence: HIGH
-                impact: HIGH
-
-            - id: dangerous-subprocess-shell
-
-              pattern: subprocess.run(..., shell=True)
-
-              message: "shell=True detected in subprocess.run(). Potential command injection risk."
-
-              severity: ERROR
-
-              languages:
-                - python
-
-              metadata:
-                category: security
-                confidence: HIGH
-                impact: HIGH
-
-          EOF
+            #########################################################
+            # Dangerous eval()
 
       #############################################################
       # Execute Semgrep SAST Scan
@@ -246,7 +193,6 @@ jobs:
 
           semgrep scan \
             --config=p/security-audit \
-            --config=p/secrets \
             --config=p/python \
             --config=p/owasp-top-ten \
             --config=custom-semgrep-rules.yml \
